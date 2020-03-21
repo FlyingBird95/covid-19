@@ -1,0 +1,34 @@
+$primary: #2E7D32;
+$secondary: #43A047;
+
+@import "node_modules/bootstrap/scss/bootstrap";
+@import 'style.css';
+
+$menu-width: 200px;
+
+.sidenav {
+  height: 100%;
+  width: $menu-width;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: $secondary;
+  overflow-x: hidden;
+  padding-top: 100px;
+}
+
+.sidenav a {
+  color: $white;
+  padding: 6px 6px 6px 32px;
+  text-decoration: none;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: $gray-200;
+}
+
+.sidenav-offset {
+  margin-left: $menu-width;
+}
