@@ -15,8 +15,8 @@
           <span class="sr-only">(current)</span>
         </a>
       </li>
-      <li class="nav-item{{ ' active' if request.endpoint == 'public.stats' }}">
-        <a class="nav-link" href="{{ url_for('public.stats') }}">Statistics</a>
+      <li class="nav-item{{ ' active' if request.endpoint == 'stats.overview' }}">
+        <a class="nav-link" href="{{ url_for('stats.overview') }}">Statistics</a>
       </li>
     </ul>
   </div>

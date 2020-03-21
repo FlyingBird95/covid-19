@@ -3,10 +3,11 @@
 from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_user, login_required, logout_user
 
-from covid19.extensions import login_manager
+from covid19.extensions import login_manager, cache
 from covid19.public.forms import LoginForm
 from covid19.user.models import User
 from covid19.utils import flash_errors
+from service.data.models import Location, Deaths, Confirmed, Recovered
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -18,15 +19,14 @@ def load_user(user_id):
 
 
 @blueprint.route("/")
+@cache.cached(timeout=50)
 def home():
     """Home page."""
-    return render_template("public/home.html")
-
-
-@blueprint.route("/stats/")
-def stats():
-    """About page."""
-    return render_template("public/stats.html")
+    locations = Location.query.all()
+    deaths = Deaths.get_total(locations)
+    confirmed = Confirmed.get_total(locations)
+    recovered = Recovered.get_total(locations)
+    return render_template("public/home.html", deaths=deaths, confirmed=confirmed, recovered=recovered)
 
 
 @blueprint.route("/login/", methods=["GET", "POST"])

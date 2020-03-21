@@ -1,5 +1,5 @@
 // JavaScript modules
-require('@fortawesome/fontawesome-free');
+require('@fortawesome/fontawesome-free/js/all');
 require('jquery');
 require('popper.js');
 require('bootstrap');

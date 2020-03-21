@@ -6,7 +6,7 @@ import sys
 from flask import Flask, render_template
 from sqlalchemy.exc import DatabaseError
 
-from covid19 import admin, commands, public, user
+from covid19 import admin, commands, public, user, stats
 from covid19.extensions import (
     bcrypt,
     cache,
@@ -14,7 +14,8 @@ from covid19.extensions import (
     db,
     flask_static_digest,
     migrate,
-    login_manager)
+    login_manager,
+)
 from covid19.settings import ADMIN_PW
 from covid19.user.models import User
 
@@ -53,6 +54,7 @@ def register_blueprints(app):
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
     app.register_blueprint(admin.views.blueprint)
+    app.register_blueprint(stats.views.blueprint)
     return None
 
 
