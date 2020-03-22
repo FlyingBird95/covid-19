@@ -16,9 +16,17 @@ class Location(SurrogatePK, Model):
     last_updated = Column(db.DateTime, nullable=True)
     province = Column(db.String(80), nullable=True)
 
-    confirmations = relationship("Confirmed", backref="location")
-    deaths = relationship("Deaths", backref="location")
-    recoveries = relationship("Recovered", backref="location")
+    @property
+    def last_confirmed(self):
+        return Confirmed.query.filter_by(location=self).order_by(desc(Confirmed.moment)).first()
+
+    @property
+    def last_recovered(self):
+        return Recovered.query.filter_by(location=self).order_by(desc(Recovered.moment)).first()
+
+    @property
+    def last_death(self):
+        return Deaths.query.filter_by(location=self).order_by(desc(Deaths.moment)).first()
 
     @classmethod
     def get_by_country_and_province(cls, country, province):
@@ -61,6 +69,7 @@ class Confirmed(SurrogatePK, StatsFuncsMixin, Model):
     __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'), )
 
     location_id = Column(db.Integer, db.ForeignKey('locations.id'))
+    location = relationship("Location")
 
     moment = Column(db.DateTime, nullable=False)
     amount = Column(db.Integer, nullable=False)
@@ -73,6 +82,7 @@ class Deaths(SurrogatePK, StatsFuncsMixin, Model):
     __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'), )
 
     location_id = Column(db.Integer, db.ForeignKey('locations.id'))
+    location = relationship("Location")
 
     moment = Column(db.DateTime, nullable=False)
     amount = Column(db.Integer, nullable=False)
@@ -85,6 +95,7 @@ class Recovered(SurrogatePK, StatsFuncsMixin, Model):
     __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'), )
 
     location_id = Column(db.Integer, db.ForeignKey('locations.id'))
+    location = relationship("Location")
 
     moment = Column(db.DateTime, nullable=False)
     amount = Column(db.Integer, nullable=False)

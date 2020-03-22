@@ -1,8 +1,10 @@
 // JavaScript modules
 require('@fortawesome/fontawesome-free/js/all');
-require('jquery');
+const $ = require('jquery');
 require('popper.js');
 require('bootstrap');
+// require('datatables.net');
+require('datatables.net-bs4');
 
 require.context(
   '../img', // context folder

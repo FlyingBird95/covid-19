@@ -5,4 +5,7 @@ $(document).ready(() => {
     $('#sidebar').toggleClass('active');
     $('footer').toggleClass('active');
   });
+  $('#table').DataTable({
+    order: [[2, 'desc']],
+  });
 });

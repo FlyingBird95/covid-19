@@ -5,6 +5,7 @@ from glob import glob
 from subprocess import call
 
 import click
+from flask.cli import with_appcontext
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.join(HERE, os.pardir)
@@ -63,3 +64,10 @@ def lint(fix_imports, check):
         execute_tool("Fixing import order", "isort", *isort_args)
     execute_tool("Formatting style", "black", *black_args)
     execute_tool("Checking code style", "flake8")
+
+
+@click.command()
+@with_appcontext
+def fetch():
+    from service.data.populate import fetch
+    fetch()

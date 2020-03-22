@@ -39,9 +39,6 @@ footer.active {
     border: 1px solid #adb5bd;
     page-break-inside: avoid;
   }
-  thead {
-    display: table-header-group;
-  }
   tr,
   img {
     page-break-inside: avoid;
@@ -61,6 +58,7 @@ footer.active {
   }
   body {
     min-width: 992px !important;
+    padding-top: 60px;
   }
   .container {
     min-width: 992px !important;
@@ -71,30 +69,6 @@ footer.active {
   .badge {
     border: 1px solid #000;
   }
-  .table {
-    border-collapse: collapse !important;
-  }
-  .table td,
-  .table th {
-    background-color: #fff !important;
-  }
-  .table-bordered th,
-  .table-bordered td {
-    border: 1px solid #dee2e6 !important;
-  }
-  .table-dark {
-    color: inherit;
-  }
-  .table-dark th,
-  .table-dark td,
-  .table-dark thead th,
-  .table-dark tbody + tbody {
-    border-color: #dee2e6;
-  }
-  .table .thead-dark th {
-    color: inherit;
-    border-color: #dee2e6;
-  }
 }
 
 body {
@@ -104,33 +78,7 @@ body {
   font-weight: normal;
   background: #fafafa;
   color: gray;
-}
-
-a {
-  -webkit-transition: .3s all ease;
-  -o-transition: .3s all ease;
-  transition: .3s all ease;
-  color: $primary;
-}
-
-a:hover, a:focus {
-  text-decoration: none !important;
-  outline: none !important;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-button {
-  -webkit-transition: .3s all ease;
-  -o-transition: .3s all ease;
-  transition: .3s all ease;
-}
-
-button:hover, button:focus {
-  text-decoration: none !important;
-  outline: none !important;
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important;
+  padding-top: 60px;
 }
 
 h1, h2, h3, h4, h5,
@@ -139,18 +87,6 @@ h1, h2, h3, h4, h5,
   font-weight: 400;
   font-family: "Poppins", Arial, sans-serif;
   color: #000;
-}
-
-.ftco-section {
-  padding: 7em 0;
-}
-
-.ftco-no-pt {
-  padding-top: 0;
-}
-
-.ftco-no-pb {
-  padding-bottom: 0;
 }
 
 .wrapper {
@@ -298,4 +234,9 @@ a[data-toggle="collapse"] {
   -o-transition: all 0.3s;
   transition: all 0.3s;
   padding-bottom: 50px;
+}
+
+.paginate_button, .page-item {
+  padding: 0 !important;
+  margin: 0 !important;
 }

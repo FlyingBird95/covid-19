@@ -9,8 +9,6 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 DATE_FORMAT_2 = '%Y-%m-%dT%H:%M:%SZ'
 
 
-
-
 def get_datetime(date_string):
     """Returns a Datetime object."""
     try:

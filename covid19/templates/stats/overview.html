@@ -4,5 +4,27 @@
     <h1>Statistics</h1>
     <p>Please click on a location in the table below so see more information about this specific country.</p>
     <hr/>
-{% endblock %}
 
+    <table id="table" class="table table-striped" style="width:100%">
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>Province</th>
+                <th>Infected</th>
+                <th>Recovered</th>
+                <th>Deaths</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for location in locations %}
+                <tr>
+                    <td>{{ location.country }}</td>
+                    <td>{{ location.province }}</td>
+                    <td>{{ "{:,.0f}".format(location.last_confirmed.amount or 0) }}</td>
+                    <td>{{ "{:,.0f}".format(location.last_recovered.amount or 0) }}</td>
+                    <td>{{ "{:,.0f}".format(location.last_death.amount or 0) }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

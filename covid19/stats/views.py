@@ -3,6 +3,8 @@
 from functools import wraps
 
 from flask import Blueprint, render_template
+
+from covid19.extensions import cache
 from service.data.models import Location
 
 blueprint = Blueprint("stats", __name__, url_prefix="/stats", static_folder="../static")
@@ -19,6 +21,7 @@ def with_location(func):
 
 
 @blueprint.route("/")
+@cache.cached(timeout=50)
 def overview():
     """Return the overview page."""
     locations = Location.query.all()

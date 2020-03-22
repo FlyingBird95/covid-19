@@ -15,9 +15,6 @@
             </li>
             {% if current_user.is_authenticated %}
                 <li>
-                    <a href="{{ url_for('admin.fetch') }}"><span class="fa fa-user mr-3"></span> Fetch data</a>
-                </li>
-                <li>
                     <a href="{{ url_for('public.logout') }}"><span class="fa fa-user mr-3"></span> Logout</a>
                 </li>
             {% endif %}

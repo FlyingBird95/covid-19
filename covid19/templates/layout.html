@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ static_url_for('static', filename='build/main_css.bundle.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ static_url_for('static', filename='build/main_css.bundle.css') }}"/>
     <link rel="shortcut icon" href="{{ static_url_for('static', filename='build/img/favicon.ico') }}">
 </head>
 <body>
@@ -16,27 +16,26 @@
 
     <div id="content" class="p-4 p-md-5 pt-5">
         <main role="main">
-          {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
-          <div class="row">
-            <div class="col-md-12">
-              {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">
-                <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
-                {{ message }}
-              </div>
-              <!-- end .alert -->
-              {% endfor %}
-            </div>
-            <!-- end col-md -->
-          </div>
-          <!-- end row -->
-          {% endif %} {% endwith %}
-          {% block content %}{% endblock %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    <a class="close" title="Close" href="#" data-dismiss="alert">&times;</a>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
         </main>
     </div>
 </div>
 {% include "footer.html" %}
 <script src="{{ static_url_for('static', filename='build/main_js.bundle.js') }}"></script>
-    {% block js %}{% endblock %}
+{% block js %}{% endblock %}
 </body>
 </html>
