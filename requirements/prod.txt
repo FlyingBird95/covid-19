@@ -36,3 +36,4 @@ Flask-Caching>=1.7.2
 environs==7.3.0
 
 requests
+mysqlclient==1.4.6

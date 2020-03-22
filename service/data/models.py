@@ -11,8 +11,8 @@ class Location(SurrogatePK, Model):
 
     country = Column(db.String(80), nullable=False)
     country_code = Column(db.String(10), nullable=False)
-    longitude = Column(db.Float, nullable=False)
-    latitude = Column(db.Float, nullable=False)
+    longitude = Column(db.Numeric, nullable=False)
+    latitude = Column(db.Numeric, nullable=False)
     last_updated = Column(db.DateTime, nullable=True)
     province = Column(db.String(80), nullable=True)
 
@@ -89,3 +89,21 @@ class Recovered(SurrogatePK, StatsFuncsMixin, Model):
     moment = Column(db.DateTime, nullable=False)
     amount = Column(db.Integer, nullable=False)
 
+
+class Totals(SurrogatePK, Model):
+    """Store the totals for faster retrieveing."""
+    CONFIRMED = 'confirmed'
+    DEATHS = 'deaths'
+    RECOVERED = 'recovered'
+
+    __tablename__ = 'totals'
+
+    key = Column(db.String(80), unique=True, nullable=False)
+    value = Column(db.String(80), nullable=False)
+
+    @classmethod
+    def get_or_create(cls, key):
+        instance = cls.query.filter_by(key=key).one_or_none()
+        if not instance:
+            instance = cls(key=key)
+        return instance
