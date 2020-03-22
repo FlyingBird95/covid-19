@@ -1,0 +1,29 @@
+<nav id="sidebar">
+    <div class="custom-menu">
+        <button type="button" id="sidebarCollapse" class="btn btn-primary">
+            <i class="fa fa-bars"></i>
+            <span class="sr-only">Toggle Menu</span>
+        </button>
+    </div>
+    <div class="p-4">
+        <ul class="list-unstyled components mb-5">
+            <li class="{{ 'active' if request.endpoint == 'public.home' }}">
+                <a href="{{ url_for('public.home') }}"><span class="fa fa-home mr-3"></span> Home</a>
+            </li>
+            <li class="{{ 'active' if request.endpoint == 'stats.overview' }}">
+                <a href="{{ url_for('stats.overview') }}"><span class="fa fa-table mr-3"></span> Statistics</a>
+            </li>
+            {% if current_user.is_authenticated %}
+                <li>
+                    <a href="{{ url_for('admin.fetch') }}"><span class="fa fa-user mr-3"></span> Fetch data</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('public.logout') }}"><span class="fa fa-user mr-3"></span> Logout</a>
+                </li>
+            {% endif %}
+            <li>
+                <a href="mailto:patrickvogel@live.nl"><span class="fa fa-paper-plane mr-3"></span> Contact</a>
+            </li>
+        </ul>
+    </div>
+</nav>

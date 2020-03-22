@@ -74,12 +74,12 @@ footer ul li {
   margin-left: 10px;
 }
 
-footer .company {
+footer .footer-left {
   float: left;
   margin-left: 25px;
 }
 
-footer .footer-nav {
+footer .footer-right {
   float: right;
   margin-right: 25px;
   list-style: none;

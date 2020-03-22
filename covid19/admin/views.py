@@ -12,7 +12,7 @@ blueprint = Blueprint("admin", __name__, url_prefix="/admin", static_folder="../
 @login_required
 def overview():
     """Return the overview page."""
-    return render_template("admin/overview.html")
+    return render_template("stats/overview.html")
 
 
 @blueprint.route("/fetch")
@@ -21,4 +21,4 @@ def fetch():
     """Return the overview page."""
     populate.fetch()
 
-    return render_template("admin/overview.html")
+    return render_template("stats/overview.html")

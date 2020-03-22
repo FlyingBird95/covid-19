@@ -7,7 +7,7 @@ from covid19.extensions import login_manager, cache
 from covid19.public.forms import LoginForm
 from covid19.user.models import User
 from covid19.utils import flash_errors
-from service.data.models import Location, Deaths, Confirmed, Recovered, Totals
+from service.data.models import Totals
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -19,7 +19,7 @@ def load_user(user_id):
 
 
 @blueprint.route("/")
-@cache.cached(timeout=50)
+# @cache.cached(timeout=50)
 def home():
     """Home page."""
     deaths = Totals.get_or_create(Totals.DEATHS).value or 0

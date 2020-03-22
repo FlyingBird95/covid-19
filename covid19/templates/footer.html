@@ -1,15 +1,9 @@
 <footer>
-    <small>
-        <ul class="company">
-            <li>© Patrick Vogel</li>
-        </ul>
+    <div class="footer-left">
+        © Patrick Vogel
+    </div>
 
-        <ul class="footer-nav">
-            <li><a href="{{ url_for('public.login') }}">Login</a></li>
-
-            <li><a href="{{ url_for('stats.overview') }}">Stats</a></li>
-
-            <li><a href="mailto:patrickvogel@live.nl">Contact</a></li>
-        </ul>
-    </small>
+    <div class="footer-right md-5">
+        <a href="{{ url_for('public.login') }}">Admin login</a>
+    </div>
 </footer>
