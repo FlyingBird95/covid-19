@@ -28,6 +28,7 @@ def fetch():
     for loc in locations:
         country = loc['country']
         province = loc['province']
+        print(loc['country'] + ' - ' + str(loc['id']))
 
         if Location.exists(country=country, province=province):
             location = Location.get_by_country_and_province(country=country, province=province)
@@ -71,6 +72,7 @@ def fetch_confirmed(location, data):
         )
         if not Confirmed.exists(obj):
             obj.save()
+    return amount
 
 
 def fetch_deaths(location, data):
@@ -82,7 +84,7 @@ def fetch_deaths(location, data):
         )
         if not Deaths.exists(obj):
             obj.save()
-
+    return amount
 
 def fetch_recovered(location, data):
     for moment, amount in data['timeline'].items():
@@ -93,3 +95,4 @@ def fetch_recovered(location, data):
         )
         if not Recovered.exists(obj):
             obj.save()
+    return amount
