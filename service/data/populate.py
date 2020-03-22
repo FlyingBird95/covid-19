@@ -64,35 +64,26 @@ def fetch():
 
 
 def fetch_confirmed(location, data):
-    for moment, amount in data['timeline'].items():
-        obj = Confirmed(
-            location_id=location.id,
-            moment=get_datetime(moment),
-            amount=amount,
-        )
-        if not Confirmed.exists(obj):
-            obj.save()
-    return amount
+    return _fetch_class(Confirmed, location=location, data=data)
 
 
 def fetch_deaths(location, data):
-    for moment, amount in data['timeline'].items():
-        obj = Deaths(
-            location_id=location.id,
-            moment=get_datetime(moment),
-            amount=amount,
-        )
-        if not Deaths.exists(obj):
-            obj.save()
-    return amount
+    return _fetch_class(Deaths, location=location, data=data)
+
 
 def fetch_recovered(location, data):
+    return _fetch_class(Recovered, location=location, data=data)
+
+
+def _fetch_class(cls, location, data):
+    last_amount = 0
     for moment, amount in data['timeline'].items():
-        obj = Recovered(
+        obj = cls(
             location_id=location.id,
             moment=get_datetime(moment),
             amount=amount,
         )
-        if not Recovered.exists(obj):
+        if not cls.exists(obj):
             obj.save()
-    return amount
+        last_amount = amount
+    return last_amount
