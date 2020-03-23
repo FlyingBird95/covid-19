@@ -22,9 +22,9 @@ def load_user(user_id):
 @cache.cached(timeout=50)
 def home():
     """Home page."""
-    deaths = Totals.get_or_create(Totals.DEATHS).value or 0
-    confirmed = Totals.get_or_create(Totals.CONFIRMED).value or 0
-    recovered = Totals.get_or_create(Totals.RECOVERED).value or 0
+    deaths = int(Totals.get_or_create(Totals.DEATHS).value or 0)
+    confirmed = int(Totals.get_or_create(Totals.CONFIRMED).value or 0)
+    recovered = int(Totals.get_or_create(Totals.RECOVERED).value or 0)
     return render_template("public/home.html", deaths=deaths, confirmed=confirmed, recovered=recovered)
 
 
