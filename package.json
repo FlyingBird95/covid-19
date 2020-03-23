@@ -4,7 +4,7 @@
   "description": "Visualizations for the covid-19 virus",
   "scripts": {
     "build": "NODE_ENV=production webpack --progress --colors -p && npm run flask-static-digest",
-    "build-only": "NODE_ENV=production webpack --progress --colors -p",
+    "build-only": "NODE_ENV=development webpack --progress --colors -p",
     "start": "concurrently -n \"WEBPACK,FLASK\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run webpack-watch\" \"npm run flask-server\"",
     "webpack-watch": "NODE_ENV=debug webpack --mode development --watch",
     "flask-server": "flask run --host=0.0.0.0",
@@ -32,6 +32,7 @@
     "datatables.net-jqui": "^1.10.20",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
+    "plotly.js-dist": "^1.52.3",
     "popper.js": "^1.15.0",
     "style-loader": "^1.1.3"
   },

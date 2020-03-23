@@ -16,6 +16,10 @@ class Location(SurrogatePK, Model):
     last_updated = Column(db.DateTime, nullable=True)
     province = Column(db.String(80), nullable=True)
 
+    confirmations = relationship("Confirmed", lazy='select')
+    deaths = relationship("Deaths", lazy='select')
+    recoveries = relationship("Recovered", lazy='select')
+
     @property
     def last_confirmed(self):
         return Confirmed.query.filter_by(location=self).order_by(desc(Confirmed.moment)).first()
@@ -60,6 +64,12 @@ class StatsFuncsMixin():
     @classmethod
     def get_total(cls, locations):
         return sum([db.session.query(func.max(cls.amount)).filter_by(location_id=loc.id).scalar() for loc in locations])
+
+    def serialize(self):
+        return {
+            'moment': self.moment.isoformat(),
+            'amount': self.amount,
+        }
 
 
 class Confirmed(SurrogatePK, StatsFuncsMixin, Model):

@@ -2,7 +2,7 @@
 """Stats section."""
 from functools import wraps
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify, url_for
 
 from covid19.extensions import cache
 from service.data.models import Location
@@ -21,14 +21,39 @@ def with_location(func):
 
 
 @blueprint.route("/")
-@cache.cached(timeout=50)
 def overview():
     """Return the overview page."""
+    return render_template("stats/overview.html")
+
+
+@blueprint.route('/overview-json')
+@cache.cached(timeout=50)
+def overview_json():
     locations = Location.query.all()
-    return render_template("stats/overview.html", locations=locations)
+    content = [
+        {
+            'country': loc.country,
+            'province': loc.province,
+            'confirmed': loc.last_confirmed.amount or 0,
+            'recovered': loc.last_recovered.amount or 0,
+            'death': loc.last_death.amount or 0,
+            'url': url_for('stats.details', location_id=loc.id),
+        } for loc in locations
+    ]
+    return jsonify({"data": content})
 
 
 @blueprint.route('/location/<int:location_id>')
 @with_location
-def location(location):
-    return location.full_name
+def details(location):
+    return render_template('stats/location.html', location=location)
+
+
+@blueprint.route('/location/<int:location_id>/json')
+@with_location
+def details_json(location):
+    return jsonify({
+        'confirmed': [obj.serialize() for obj in location.confirmations],
+        'recovered': [obj.serialize() for obj in location.recoveries],
+        'deaths': [obj.serialize() for obj in location.deaths],
+    })
