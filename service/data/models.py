@@ -22,15 +22,18 @@ class Location(SurrogatePK, Model):
 
     @property
     def last_confirmed(self):
-        return Confirmed.query.filter_by(location=self).order_by(desc(Confirmed.moment)).first()
+        obj = Confirmed.query.filter_by(location=self).order_by(desc(Confirmed.moment)).first()
+        return obj if obj is not None else Confirmed()
 
     @property
     def last_recovered(self):
-        return Recovered.query.filter_by(location=self).order_by(desc(Recovered.moment)).first()
+        obj = Recovered.query.filter_by(location=self).order_by(desc(Recovered.moment)).first()
+        return obj if obj is not None else Recovered()
 
     @property
     def last_death(self):
-        return Deaths.query.filter_by(location=self).order_by(desc(Deaths.moment)).first()
+        obj = Deaths.query.filter_by(location=self).order_by(desc(Deaths.moment)).first()
+        return obj if obj is not None else Deaths()
 
     @classmethod
     def get_by_country_and_province(cls, country, province):
@@ -82,7 +85,7 @@ class Confirmed(SurrogatePK, StatsFuncsMixin, Model):
     location = relationship("Location")
 
     moment = Column(db.DateTime, nullable=False)
-    amount = Column(db.Integer, nullable=False)
+    amount = Column(db.Integer, default=0, nullable=False)
 
 
 class Deaths(SurrogatePK, StatsFuncsMixin, Model):
@@ -95,7 +98,7 @@ class Deaths(SurrogatePK, StatsFuncsMixin, Model):
     location = relationship("Location")
 
     moment = Column(db.DateTime, nullable=False)
-    amount = Column(db.Integer, nullable=False)
+    amount = Column(db.Integer, default=0, nullable=False)
 
 
 class Recovered(SurrogatePK, StatsFuncsMixin, Model):
@@ -108,7 +111,7 @@ class Recovered(SurrogatePK, StatsFuncsMixin, Model):
     location = relationship("Location")
 
     moment = Column(db.DateTime, nullable=False)
-    amount = Column(db.Integer, nullable=False)
+    amount = Column(db.Integer, default=0, nullable=False)
 
 
 class Totals(SurrogatePK, Model):
