@@ -7,14 +7,8 @@ class Location(SurrogatePK, Model):
     """Location of the collected data."""
 
     __tablename__ = 'locations'
-    __table_args__ = (UniqueConstraint('country', 'province'), )
 
-    country = Column(db.String(80), nullable=False)
-    country_code = Column(db.String(10), nullable=False)
-    longitude = Column(db.Numeric, nullable=False)
-    latitude = Column(db.Numeric, nullable=False)
-    last_updated = Column(db.DateTime, nullable=True)
-    province = Column(db.String(80), nullable=True)
+    country = Column(db.String(80), unique=True, nullable=False)
 
     confirmations = relationship("Confirmed", lazy='select')
     deaths = relationship("Deaths", lazy='select')
@@ -36,12 +30,12 @@ class Location(SurrogatePK, Model):
         return obj if obj is not None else Deaths()
 
     @classmethod
-    def get_by_country_and_province(cls, country, province):
-        return cls.query.filter(Location.country == country, Location.province == province).one()
+    def get_by_country(cls, country):
+        return cls.query.filter(Location.country == country).one()
 
     @classmethod
-    def exists(cls, country, province):
-        return cls.query.filter(Location.country == country, Location.province == province).count() >= 1
+    def exists(cls, country):
+        return cls.query.filter(Location.country == country).count() >= 1
 
     @property
     def full_name(self):

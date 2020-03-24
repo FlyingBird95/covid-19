@@ -20,19 +20,25 @@
             <td>Deaths</td>
             <td>{{ "{:,.0f}".format(location.last_death.amount or 0) }}</td>
         </tr>
-        <tr>
-            <td>Last updated</td>
-            <td>{{ location.last_updated }}</td>
-        </tr>
-        <tr>
-            <td>Location</td>
-            <td>{{ '{}, {}'.format(location.latitude, location.longitude) }}</td>
-        </tr>
         </tbody>
     </table>
 
-    <div id="plotly-confirmed"></div>
-    <div id="plotly-recovered"></div>
-    <div id="plotly-deaths"></div>
-    <div id="plotly-confirmed-delta"></div>
+    <div class="row">
+        <div class="col-6"><div id="plotly-confirmed"></div></div>
+        <div class="col-6"><div id="plotly-confirmed-delta"></div></div>
+    </div>
+
+    <div class="row">
+        <div class="col-6"><div id="plotly-recovered"></div></div>
+        <div class="col-6"><div id="plotly-recovered-delta"></div></div>
+    </div>
+
+    <div class="row">
+        <div class="col-6"><div id="plotly-deaths"></div></div>
+        <div class="col-6"><div id="plotly-deaths-delta"></div></div>
+    </div>
+
+    <div class="row">
+        <div class="col-6"><div id="plotly-confirmed-delta2"></div></div>
+    </div>
 {% endblock %}

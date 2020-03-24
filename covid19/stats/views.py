@@ -33,7 +33,6 @@ def overview_json():
     content = [
         {
             'country': loc.country,
-            'province': loc.province,
             'confirmed': loc.last_confirmed.amount or 0,
             'recovered': loc.last_recovered.amount or 0,
             'death': loc.last_death.amount or 0,
