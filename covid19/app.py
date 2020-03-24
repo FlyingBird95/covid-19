@@ -32,6 +32,7 @@ def create_app(config_object="covid19.settings"):
     register_errorhandlers(app)
     register_shellcontext(app)
     register_commands(app)
+    register_template_filters(app)
     configure_logger(app)
     add_data(app)
     return app
@@ -87,6 +88,16 @@ def register_commands(app):
     app.cli.add_command(commands.test)
     app.cli.add_command(commands.lint)
     app.cli.add_command(commands.fetch)
+
+
+def register_template_filters(app):
+    """Register Jinja2 template filters."""
+
+    @app.template_filter('strftime')
+    def _jinja2_filter_datetime(date, fmt=None):
+        native = date.replace(tzinfo=None)
+        fmt = fmt or '%b %d, %Y'
+        return native.strftime(fmt)
 
 
 def configure_logger(app):

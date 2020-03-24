@@ -1,44 +1,86 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h1>{{ location.full_name }}</h1>
-    <hr/>
-    <table id="table" class="table table-striped" style="width:100%">
-    <thead>
-    <tr><th>Stat</th><th>Value</th></tr>
-    </thead>
-        <tbody>
-        <tr>
-            <td>Infected</td>
-            <td>{{ "{:,.0f}".format(location.last_confirmed.amount or 0) }}</td>
-        </tr>
-        <tr>
-            <td>Recovered</td>
-            <td>{{ "{:,.0f}".format(location.last_recovered.amount or 0) }}</td>
-        </tr>
-        <tr>
-            <td>Deaths</td>
-            <td>{{ "{:,.0f}".format(location.last_death.amount or 0) }}</td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="container">
+        <div class="row col-12">
+            <h1 class="md-5">{{ location.country }}</h1>
+        </div>
 
-    <div class="row">
-        <div class="col-6"><div id="plotly-confirmed"></div></div>
-        <div class="col-6"><div id="plotly-confirmed-delta"></div></div>
-    </div>
+        <div class="row">
+            <div class="col-4">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="md-5">Infected</h5>
+                        <h1>{{ "{:,.0f}".format(location.last_confirmed.amount or 0) }}</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="md-5">Recovered</h5>
+                        <h1>{{ "{:,.0f}".format(location.last_recovered.amount or 0) }}</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="md-5">Deaths</h5>
+                        <h1>{{ "{:,.0f}".format(location.last_death.amount or 0) }}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="row">
-        <div class="col-6"><div id="plotly-recovered"></div></div>
-        <div class="col-6"><div id="plotly-recovered-delta"></div></div>
-    </div>
+        <div class="row col-12">
+            <h2 class="title-clear">Simple statistics</h2>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p>Let's have a look at simple statistics, such as:</p>
+                <ul>
+                    <li>The total amount of infected persons in {{ location.country }} due to the Corona virus.</li>
+                    <li>The total amount of recovered persons in {{ location.country }} due to the Corona virus.</li>
+                    <li>The total amount of people passed away in {{ location.country }} due to the Corona virus.</li>
+                </ul>
+            </div>
+        </div>
 
-    <div class="row">
-        <div class="col-6"><div id="plotly-deaths"></div></div>
-        <div class="col-6"><div id="plotly-deaths-delta"></div></div>
-    </div>
+        <div class="row col-12 graph">
+            <div id="plotly-confirmed" style="width: 100%;"></div>
+        </div>
 
-    <div class="row">
-        <div class="col-6"><div id="plotly-confirmed-delta2"></div></div>
+        <div class="row col-12 graph">
+            <div id="plotly-recovered" style="width: 100%;"></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-deaths" style="width: 100%;"></div>
+        </div>
+
+        <div class="row col-12">
+            <h2 class="title-clear">More interesting graphs</h2>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p>Hmm, the previous graphs are not very interesting. Let's have a look at the amount of infected people
+                    per day. And let's compare it to China. For our second graph, we align the data the following:</p>
+                <ul>
+                    <li>{{ location.country }} day 1: {{ location.day1(china)|strftime }}</li>
+                    <li>China day 1: {{ china.confirmations[0].moment|strftime }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-confirmed-delta" style="width: 100%;"></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-confirmed-china" style="width: 100%;"></div>
+        </div>
+
+
     </div>
 {% endblock %}

@@ -14,6 +14,11 @@ class Location(SurrogatePK, Model):
     deaths = relationship("Deaths", lazy='select')
     recoveries = relationship("Recovered", lazy='select')
 
+    @classmethod
+    def get_china(cls):
+        """China is a special country, since the virus started here, thus we have more non-negative data-points."""
+        return cls.query.filter_by(country="China").one()
+
     @property
     def last_confirmed(self):
         obj = Confirmed.query.filter_by(location=self).order_by(desc(Confirmed.moment)).first()
@@ -29,6 +34,21 @@ class Location(SurrogatePK, Model):
         obj = Deaths.query.filter_by(location=self).order_by(desc(Deaths.moment)).first()
         return obj if obj is not None else Deaths()
 
+    def day1(self, china):
+        """Returns the first day with more confirmed cases than China's first day.
+        This can be used for aligning the data."""
+        return self.confirmations[self.day1_index(china)].moment
+
+    def day1_index(self, china):
+        """Returns the first day with an infected person."""
+        index = 0
+        amount = china.confirmations[0].amount if china.confirmations else 0
+        for obj in self.confirmations:
+            if obj.amount > amount:
+                return index
+            index += 1
+        return 0
+
     @classmethod
     def get_by_country(cls, country):
         return cls.query.filter(Location.country == country).one()
@@ -37,11 +57,6 @@ class Location(SurrogatePK, Model):
     def exists(cls, country):
         return cls.query.filter(Location.country == country).count() >= 1
 
-    @property
-    def full_name(self):
-        if self.province:
-            return '{} - {}'.format(self.country, self.province)
-        return self.country
 
 
 class StatsFuncsMixin():
@@ -73,7 +88,7 @@ class Confirmed(SurrogatePK, StatsFuncsMixin, Model):
     """Total number of confirmed cases at a certain moment in a location."""
 
     __tablename__ = 'confirmations'
-    __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'), )
+    __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'),)
 
     location_id = Column(db.Integer, db.ForeignKey('locations.id'))
     location = relationship("Location")
@@ -86,7 +101,7 @@ class Deaths(SurrogatePK, StatsFuncsMixin, Model):
     """Total number of deaths at a certain moment in a location."""
 
     __tablename__ = 'deaths'
-    __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'), )
+    __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'),)
 
     location_id = Column(db.Integer, db.ForeignKey('locations.id'))
     location = relationship("Location")
@@ -99,7 +114,7 @@ class Recovered(SurrogatePK, StatsFuncsMixin, Model):
     """Total number of recoveries at a certain moment in a location."""
 
     __tablename__ = 'recoveries'
-    __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'), )
+    __table_args__ = (UniqueConstraint('location_id', 'moment', 'amount'),)
 
     location_id = Column(db.Integer, db.ForeignKey('locations.id'))
     location = relationship("Location")

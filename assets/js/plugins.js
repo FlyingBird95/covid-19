@@ -89,45 +89,28 @@ $(document).ready(() => {
 
       Plotly.newPlot('plotly-confirmed-delta', withMovingAvg(confirmedDelta), { title: 'Confirmations per day' });
 
-      const recoveredDelta = {
+      const compareChina = {
         type: 'scatter',
         mode: 'lines',
-        name: 'Recoveries per day',
-        x: unpack(data.recovered, 'moment').slice(1),
-        y: delta(unpack(data.recovered, 'amount')),
-        line: { color: '#021e20' },
+        name: 'China',
+        y: delta(data.compare.china),
+        line: { color: '#ff392d' },
       };
-
-      Plotly.newPlot('plotly-recovered-delta', withMovingAvg(recoveredDelta), { title: 'Recoveries per day' });
-
-      const deathsDelta = {
+      const compareLocation = {
         type: 'scatter',
         mode: 'lines',
-        name: 'Deaths per day',
-        x: unpack(data.deaths, 'moment').slice(1),
-        y: delta(unpack(data.deaths, 'amount')),
+        name: data.name,
+        y: delta(data.compare.location),
         line: { color: '#021e20' },
       };
-
-      Plotly.newPlot('plotly-deaths-delta', withMovingAvg(deathsDelta), { title: 'Deaths per day' });
-
-      const confirmedDelta2 = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Confirmed delta per day',
-        x: unpack(data.confirmed, 'moment').slice(2),
-        y: delta(delta(unpack(data.confirmed, 'amount'))),
-        line: { color: '#021e20' },
-      };
-
-      Plotly.newPlot('plotly-confirmed-delta2', withMovingAvg(confirmedDelta2), { title: 'Confirmed delta per day' });
+      Plotly.newPlot('plotly-confirmed-china', [compareLocation, compareChina], { title: 'Growth comparison with China' });
     });
     // eslint-disable-next-line func-names
   } else if (window.location.pathname.startsWith('/stats/')) {
     const table = $('#table');
     table.DataTable({
       ajax: '/stats/overview-json',
-      order: [[2, 'desc']],
+      order: [[1, 'desc']],
       fnRowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         $(nRow).attr('data-url', aData.url);
         return nRow;
