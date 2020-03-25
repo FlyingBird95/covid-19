@@ -36,9 +36,9 @@ def fetch():
         max_deaths, max_confirmed, max_recovered = 0, 0, 0
         for row in data:
             day = get_datetime(row['date'])
-            max_recovered = max(max_recovered, (Recovered, location, day, get_value(row, 'recovered', 0)))
-            max_confirmed = max(max_confirmed, (Confirmed, location, day, get_value(row, 'confirmed', 0)))
-            max_deaths = max(max_deaths, (Deaths, location, day, get_value(row, 'deaths', 0)))
+            max_recovered = max(max_recovered, save_row(Recovered, location, day, get_value(row, 'recovered', 0)))
+            max_confirmed = max(max_confirmed, save_row(Confirmed, location, day, get_value(row, 'confirmed', 0)))
+            max_deaths = max(max_deaths, save_row(Deaths, location, day, get_value(row, 'deaths', 0)))
 
         confirmed += max_confirmed
         deaths += max_deaths
