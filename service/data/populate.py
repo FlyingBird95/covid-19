@@ -33,16 +33,16 @@ def fetch():
         else:
             location = Location.get_by_country(country)
 
-        last_deaths, last_confirmed, last_recovered = 0, 0, 0
+        max_deaths, max_confirmed, max_recovered = 0, 0, 0
         for row in data:
             day = get_datetime(row['date'])
-            last_recovered = save_row(Recovered, location, day, get_value(row, 'recovered', 0))
-            last_confirmed = save_row(Confirmed, location, day, get_value(row, 'confirmed', 0))
-            last_deaths = save_row(Deaths, location, day, get_value(row, 'deaths', 0))
+            max_recovered = max(max_recovered, (Recovered, location, day, get_value(row, 'recovered', 0)))
+            max_confirmed = max(max_confirmed, (Confirmed, location, day, get_value(row, 'confirmed', 0)))
+            max_deaths = max(max_deaths, (Deaths, location, day, get_value(row, 'deaths', 0)))
 
-        confirmed += last_confirmed
-        deaths += last_deaths
-        recovered += last_recovered
+        confirmed += max_confirmed
+        deaths += max_deaths
+        recovered += max_recovered
 
     set_value(Totals.CONFIRMED, confirmed)
     set_value(Totals.DEATHS, deaths)
