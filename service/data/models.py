@@ -26,7 +26,7 @@ class Location(SurrogatePK, Model):
 
     @property
     def last_recovered(self):
-        obj = Recovered.query.filter_by(location=self).order_by(desc(Recovered.moment)).first()
+        obj = Recovered.query.filter_by(location=self).filter(Recovered.amount > 0).order_by(desc(Recovered.moment)).first()
         return obj if obj is not None else Recovered()
 
     @property
