@@ -35,5 +35,7 @@ Flask-Caching>=1.7.2
 # Environment variable parsing
 environs==7.3.0
 
-requests
+requests==2.23.0
 mysqlclient==1.4.6
+
+scipy==1.4.1

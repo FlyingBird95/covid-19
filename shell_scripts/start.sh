@@ -1,3 +1,3 @@
 npm run build-only
-source venv/bin/activate
+source env/bin/activate
 flask digest compile

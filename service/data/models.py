@@ -26,7 +26,7 @@ class Location(SurrogatePK, Model):
 
     @property
     def last_recovered(self):
-        obj = Recovered.query.filter_by(location=self).filter(Recovered.amount > 0).order_by(desc(Recovered.moment)).first()
+        obj = Recovered.query.filter_by(location=self).order_by(desc(Recovered.moment)).first()
         return obj if obj is not None else Recovered()
 
     @property
@@ -34,17 +34,22 @@ class Location(SurrogatePK, Model):
         obj = Deaths.query.filter_by(location=self).order_by(desc(Deaths.moment)).first()
         return obj if obj is not None else Deaths()
 
-    def day1(self, china):
+    def get_people_sick(self, i):
+        """Returns the amount of people that are still sick."""
+        return self.confirmations[i].amount - self.recoveries[i].amount - self.deaths[i].amount
+
+    @property
+    def day1(self):
         """Returns the first day with more confirmed cases than China's first day.
         This can be used for aligning the data."""
-        return self.confirmations[self.day1_index(china)].moment
+        return self.confirmations[self.day1_index].moment
 
-    def day1_index(self, china):
+    @property
+    def day1_index(self):
         """Returns the first day with an infected person."""
         index = 0
-        amount = china.confirmations[0].amount if china.confirmations else 0
         for obj in self.confirmations:
-            if obj.amount > amount:
+            if obj.amount > 50:
                 return index
             index += 1
         return 0
@@ -58,12 +63,15 @@ class Location(SurrogatePK, Model):
         return cls.query.filter(Location.country == country).count() >= 1
 
 
-
-class StatsFuncsMixin():
+class StatsFuncsMixin(object):
 
     @classmethod
     def get_latest(cls, location=None):
         return cls.query.filter_by(location=location).order_by(desc(Confirmed.moment)).one()
+
+    @classmethod
+    def get_for(cls, location_id, moment):
+        return cls.query.filter_by(location_id=location_id, moment=moment).one()
 
     @classmethod
     def exists(cls, obj):

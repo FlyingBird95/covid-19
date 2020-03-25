@@ -51,10 +51,10 @@ $(document).ready(() => {
         name: 'Confirmed',
         x: unpack(data.confirmed, 'moment'),
         y: unpack(data.confirmed, 'amount'),
-        line: { color: '#021e20' },
+        line: {color: '#021e20'},
       };
 
-      Plotly.newPlot('plotly-confirmed', [confirmed], { title: 'Confirmed' });
+      Plotly.newPlot('plotly-confirmed', [confirmed], {title: 'Confirmed'});
 
       const recovered = {
         type: 'scatter',
@@ -62,10 +62,10 @@ $(document).ready(() => {
         name: 'Recovered',
         x: unpack(data.recovered, 'moment'),
         y: unpack(data.recovered, 'amount'),
-        line: { color: '#021e20' },
+        line: {color: '#021e20'},
       };
 
-      Plotly.newPlot('plotly-recovered', [recovered], { title: 'Recovered' });
+      Plotly.newPlot('plotly-recovered', [recovered], {title: 'Recovered'});
 
       const deaths = {
         type: 'scatter',
@@ -73,10 +73,10 @@ $(document).ready(() => {
         name: 'Deaths',
         x: unpack(data.deaths, 'moment'),
         y: unpack(data.deaths, 'amount'),
-        line: { color: '#021e20' },
+        line: {color: '#021e20'},
       };
 
-      Plotly.newPlot('plotly-deaths', [deaths], { title: 'Deaths' });
+      Plotly.newPlot('plotly-deaths', [deaths], {title: 'Deaths'});
 
       const confirmedDelta = {
         type: 'scatter',
@@ -84,26 +84,83 @@ $(document).ready(() => {
         name: 'Confirmations per day',
         x: unpack(data.confirmed, 'moment').slice(1),
         y: delta(unpack(data.confirmed, 'amount')),
-        line: { color: '#021e20' },
+        line: {color: '#021e20'},
       };
 
-      Plotly.newPlot('plotly-confirmed-delta', withMovingAvg(confirmedDelta), { title: 'Confirmations per day' });
+      Plotly.newPlot('plotly-confirmed-delta', withMovingAvg(confirmedDelta), {title: 'Confirmations per day'});
 
       const compareChina = {
         type: 'scatter',
         mode: 'lines',
         name: 'China',
         y: delta(data.compare.china),
-        line: { color: '#ff392d' },
+        line: {color: '#ff392d'},
       };
       const compareLocation = {
         type: 'scatter',
         mode: 'lines',
         name: data.name,
         y: delta(data.compare.location),
-        line: { color: '#021e20' },
+        line: {color: '#021e20'},
       };
-      Plotly.newPlot('plotly-confirmed-china', [compareLocation, compareChina], { title: 'Growth comparison with China' });
+      Plotly.newPlot('plotly-confirmed-china', [compareLocation, compareChina], {title: 'Growth comparison with China'});
+    });
+    Plotly.d3.json(`${window.location.href}/json-future`, (err, data) => {
+      const futureInfected = {
+        type: 'scatter',
+        mode: 'markers',
+        name: 'Actual cases',
+        x: data.time_number_days,
+        y: data.cases_ref,
+        line: { color: '#ff392d' },
+      };
+      const futureInfected2 = {
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Predicted cases',
+        x: data.time_sim,
+        y: data.cases_sim,
+        line: { color: 'rgba(255,57,45,0.87)' },
+      };
+      const layout = {
+        title: data.name,
+        xaxis: {
+          title: { text: 'Number of active cases' },
+        },
+        yaxis: {
+          title: { text: 'Days' },
+        },
+      };
+      $('#plotly-future-infected').empty();
+      Plotly.newPlot('plotly-future-infected', [futureInfected, futureInfected2], layout);
+      const futureDeath = {
+        type: 'scatter',
+        mode: 'markers',
+        name: 'Actual number of deaths',
+        x: data.time_number_days,
+        y: data.deaths_ref,
+        line: { color: '#ff392d' },
+      };
+      const futureDeath2 = {
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Predicted number of deaths',
+        x: data.time_sim,
+        y: data.deaths_sim,
+        line: { color: 'rgba(255,57,45,0.87)' },
+      };
+      const layoutDeath = {
+        title: data.name,
+        xaxis: {
+          title: { text: 'Cumulative number of deaths' },
+          ticktext: data.time,
+        },
+        yaxis: {
+          title: { text: 'Days' },
+        },
+      };
+      $('#plotly-future-deaths').empty();
+      Plotly.newPlot('plotly-future-deaths', [futureDeath, futureDeath2], layoutDeath);
     });
     // eslint-disable-next-line func-names
   } else if (window.location.pathname.startsWith('/stats/')) {

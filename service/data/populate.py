@@ -14,8 +14,8 @@ def get_datetime(date_string):
 
 
 def get_value(obj, key, default=0):
-    if key in obj:
-        return obj[key] or default
+    if key in obj and obj[key] is not None:
+        return max(obj[key], default)
     return default
 
 
@@ -33,16 +33,16 @@ def fetch():
         else:
             location = Location.get_by_country(country)
 
-        max_deaths, max_confirmed, max_recovered = 0, 0, 0
+        last_deaths, last_confirmed, last_recovered = 0, 0, 0
         for row in data:
             day = get_datetime(row['date'])
-            max_recovered = max(max_recovered, save_row(Recovered, location, day, get_value(row, 'recovered', 0)))
-            max_confirmed = max(max_confirmed, save_row(Confirmed, location, day, get_value(row, 'confirmed', 0)))
-            max_deaths = max(max_deaths, save_row(Deaths, location, day, get_value(row, 'deaths', 0)))
+            last_recovered = save_row(Recovered, location, day, get_value(row, 'recovered', last_recovered))
+            last_confirmed = save_row(Confirmed, location, day, get_value(row, 'confirmed', last_confirmed))
+            last_deaths = save_row(Deaths, location, day, get_value(row, 'deaths', last_deaths))
 
-        confirmed += max_confirmed
-        deaths += max_deaths
-        recovered += max_recovered
+        confirmed += last_confirmed
+        deaths += last_deaths
+        recovered += last_recovered
 
     set_value(Totals.CONFIRMED, confirmed)
     set_value(Totals.DEATHS, deaths)
@@ -63,4 +63,7 @@ def save_row(cls, location, day, value):
     )
     if not cls.exists(obj):
         obj.save()
+    else:
+        obj = cls.get_for(location_id=location.id, moment=day)
+        obj.update(amount=value)
     return value
