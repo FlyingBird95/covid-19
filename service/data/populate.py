@@ -13,6 +13,12 @@ def get_datetime(date_string):
     return datetime.strptime(date_string, DATE_FORMAT)
 
 
+def get_value(obj, key, default=0):
+    if key in obj:
+        return obj[key] or default
+    return default
+
+
 def fetch():
     """Get the data from an external location and save into the database. Note that this might be a slow operation."""
     locations = requests.get(URL).json()
@@ -30,9 +36,9 @@ def fetch():
         last_deaths, last_confirmed, last_recovered = 0, 0, 0
         for row in data:
             day = get_datetime(row['date'])
-            last_recovered = save_row(Recovered, location, day, row['recovered'] or 0)
-            last_confirmed = save_row(Confirmed, location, day, row['confirmed'] or 0)
-            last_deaths = save_row(Deaths, location, day, row['deaths'] or 0)
+            last_recovered = save_row(Recovered, location, day, get_value(row, 'recovered', 0))
+            last_confirmed = save_row(Confirmed, location, day, get_value(row, 'confirmed', 0))
+            last_deaths = save_row(Deaths, location, day, get_value(row, 'deaths', 0))
 
         confirmed += last_confirmed
         deaths += last_deaths
