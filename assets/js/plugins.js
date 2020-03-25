@@ -125,10 +125,10 @@ $(document).ready(() => {
       const layout = {
         title: data.name,
         xaxis: {
-          title: { text: 'Number of active cases' },
+          title: { text: 'Days' },
         },
         yaxis: {
-          title: { text: 'Days' },
+          title: { text: 'Number of active cases' },
         },
       };
       $('#plotly-future-infected').empty();
@@ -152,11 +152,10 @@ $(document).ready(() => {
       const layoutDeath = {
         title: data.name,
         xaxis: {
-          title: { text: 'Cumulative number of deaths' },
-          ticktext: data.time,
+          title: { text: 'Days' },
         },
         yaxis: {
-          title: { text: 'Days' },
+          title: { text: 'Number of active cases' },
         },
       };
       $('#plotly-future-deaths').empty();
