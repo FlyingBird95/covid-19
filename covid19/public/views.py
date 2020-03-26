@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """Public section, including homepage and signup."""
+from datetime import datetime
+
 from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_user, login_required, logout_user
 
@@ -25,7 +27,14 @@ def home():
     deaths = int(Totals.get_or_create(Totals.DEATHS).value or 0)
     confirmed = int(Totals.get_or_create(Totals.CONFIRMED).value or 0)
     recovered = int(Totals.get_or_create(Totals.RECOVERED).value or 0)
-    return render_template("public/home.html", deaths=deaths, confirmed=confirmed, recovered=recovered)
+    updated = datetime.fromisoformat(Totals.get_or_create(Totals.UPDATED).value or datetime.now().isoformat())
+    return render_template(
+        "public/home.html",
+        deaths=deaths,
+        confirmed=confirmed,
+        recovered=recovered,
+        updated=updated,
+    )
 
 
 @blueprint.route("/login/", methods=["GET", "POST"])

@@ -66,8 +66,20 @@ def lint(fix_imports, check):
     execute_tool("Checking code style", "flake8")
 
 
-@click.command()
-@with_appcontext
+@click.group()
 def fetch():
-    from service.data.populate import fetch
-    fetch()
+    pass
+
+
+@fetch.command()
+@with_appcontext
+def data():
+    from service.data.populate import fetch_data
+    fetch_data()
+
+
+@fetch.command()
+@with_appcontext
+def countries():
+    from service.data.populate import fetch_countries
+    fetch_countries()

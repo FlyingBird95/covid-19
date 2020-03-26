@@ -55,6 +55,10 @@
                 </div>
             </div>
         </div>
+
+        <div class="row col-8">
+            <p>Latest updated: {{ updated|strftime(fmt='%b %d, %Y %H:%M:%S') }}</p>
+        </div>
     </div>
 {% endblock %}
 

@@ -1,10 +1,12 @@
+import logging
 from datetime import datetime
 
 import requests
 
 from service.data.models import Location, Deaths, Confirmed, Recovered, Totals
 
-URL = 'https://pomber.github.io/covid19/timeseries.json'
+DATA = 'https://covidapi.info/api/v1/country/{country_code}'
+COUNTRIES = 'https://raw.githubusercontent.com/backtrackbaba/covid-api/master/data/country_name_to_iso.json'
 DATE_FORMAT = '%Y-%m-%d'
 
 
@@ -19,23 +21,27 @@ def get_value(obj, key, default=0):
     return default
 
 
-def fetch():
-    """Get the data from an external location and save into the database. Note that this might be a slow operation."""
-    locations = requests.get(URL).json()
+def fetch_countries():
+    """Get the countries from an external location and save into the database."""
+    countries = requests.get(COUNTRIES).json()
+
+    for country, country_code in countries.items():
+        if not Location.exists(country=country):
+            Location(country=country, country_code=country_code).save()
+    logging.info('Done')
+
+
+def fetch_data():
+    """Get the data from an external location and save into the database."""
     deaths, confirmed, recovered = 0, 0, 0
 
-    for country, data in locations.items():
-        print(country)
-
-        if not Location.exists(country=country):
-            location = Location(country=country)
-            location.save()
-        else:
-            location = Location.get_by_country(country)
+    for location in Location.query.all():
+        print(location.country)
+        data = requests.get(DATA.format(country_code=location.country_code)).json()
 
         last_deaths, last_confirmed, last_recovered = 0, 0, 0
-        for row in data:
-            day = get_datetime(row['date'])
+        for day, row in data['result'].items():
+            day = get_datetime(day)
             last_recovered = save_row(Recovered, location, day, get_value(row, 'recovered', last_recovered))
             last_confirmed = save_row(Confirmed, location, day, get_value(row, 'confirmed', last_confirmed))
             last_deaths = save_row(Deaths, location, day, get_value(row, 'deaths', last_deaths))
@@ -47,6 +53,7 @@ def fetch():
     set_value(Totals.CONFIRMED, confirmed)
     set_value(Totals.DEATHS, deaths)
     set_value(Totals.RECOVERED, recovered)
+    set_value(Totals.UPDATED, datetime.utcnow().isoformat())
 
 
 def set_value(key, value):

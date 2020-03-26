@@ -9,6 +9,7 @@ class Location(SurrogatePK, Model):
     __tablename__ = 'locations'
 
     country = Column(db.String(80), unique=True, nullable=False)
+    country_code = Column(db.String(10), nullable=False)
 
     confirmations = relationship("Confirmed", lazy='select')
     deaths = relationship("Deaths", lazy='select')
@@ -132,10 +133,11 @@ class Recovered(SurrogatePK, StatsFuncsMixin, Model):
 
 
 class Totals(SurrogatePK, Model):
-    """Store the totals for faster retrieveing."""
+    """Store the totals for faster retrieving."""
     CONFIRMED = 'confirmed'
     DEATHS = 'deaths'
     RECOVERED = 'recovered'
+    UPDATED = 'updated'
 
     __tablename__ = 'totals'
 
