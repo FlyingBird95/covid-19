@@ -37,7 +37,16 @@ def fetch_data():
 
     for location in Location.query.all():
         print(location.country)
-        data = requests.get(DATA.format(country_code=location.country_code)).json()
+        response = requests.get(DATA.format(country_code=location.country_code))
+        retry = 0
+        while response.status_code != 200 and retry < 3:
+            response = requests.get(DATA.format(country_code=location.country_code))
+            retry += 1
+        if retry == 3:
+            print('Deleting {}'.format(location.country))
+            location.delete()
+            continue
+        data = response.json()
 
         last_deaths, last_confirmed, last_recovered = 0, 0, 0
         for day, row in data['result'].items():

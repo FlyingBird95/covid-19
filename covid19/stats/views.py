@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, jsonify, url_for
 from covid19.extensions import cache
 from covid19.stats.wrappers import with_location, with_china
 from service.data.models import Location
-from service.data.predict import get_data, fit_country
+from service.data.predict import fit_predict
 
 blueprint = Blueprint("stats", __name__, url_prefix="/stats", static_folder="../static")
 
@@ -62,16 +62,31 @@ def details_json(location, china):
 @with_location
 def details_json_future(location):
     """Let's predict the future."""
-    time, time_number_days, cases_ref, deaths_ref = get_data(location)
-    time_sim, cases_sim, _, _, deaths_sim = fit_country(location)
+    prediction_days = 90
+    confirmation_time_sim, confirmation_ref, confirmation_predictions = fit_predict(
+        datapoints=location.confirmations,
+        condition=lambda confirmation: confirmation.amount > 50,
+        get_value=lambda i: location.confirmations[i].amount,
+        prediction_days=prediction_days,
+    )
+
+    deaths_time_sim, deaths_ref, deaths_predictions = fit_predict(
+        datapoints=location.deaths,
+        condition=lambda death: death.amount > 5,
+        get_value=lambda i: location.deaths[i].amount,
+        prediction_days=prediction_days,
+    )
 
     return jsonify({
         'name': location.country,
-        'time': [t.isoformat() for t in time],
-        'time_sim': time_sim,
-        'time_numer_days': time_number_days,
-        'cases_ref': cases_ref,
-        'deaths_ref': deaths_ref,
-        'cases_sim': cases_sim,
-        'deaths_sim': deaths_sim,
+        'confirmation': {
+            'time': [t.isoformat() for t in confirmation_time_sim],
+            'values': confirmation_ref,
+            'predictions': confirmation_predictions,
+        },
+        'deaths': {
+            'time': [t.isoformat() for t in deaths_time_sim],
+            'values': deaths_ref,
+            'predictions': deaths_predictions,
+        },
     })

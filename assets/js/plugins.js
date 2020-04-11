@@ -109,53 +109,48 @@ $(document).ready(() => {
       const futureInfected = {
         type: 'scatter',
         mode: 'markers',
-        name: 'Actual cases',
-        x: data.time_number_days,
-        y: data.cases_ref,
+        name: 'Number of confirmations',
+        x: data.confirmation.time,
+        y: data.confirmation.values,
         line: { color: '#ff392d' },
       };
       const futureInfected2 = {
         type: 'scatter',
         mode: 'lines',
-        name: 'Predicted cases',
-        x: data.time_sim,
-        y: data.cases_sim,
+        name: 'Predicted number of confirmations',
+        x: data.confirmation.time,
+        y: data.confirmation.predictions,
         line: { color: 'rgba(255,57,45,0.87)' },
       };
       const layout = {
         title: data.name,
-        xaxis: {
-          title: { text: 'Days' },
-        },
         yaxis: {
-          title: { text: 'Number of active cases' },
+          title: { text: 'Total number of confirmed cases' },
         },
       };
       $('#plotly-future-infected').empty();
       Plotly.newPlot('plotly-future-infected', [futureInfected, futureInfected2], layout);
+
       const futureDeath = {
         type: 'scatter',
         mode: 'markers',
-        name: 'Actual number of deaths',
-        x: data.time_number_days,
-        y: data.deaths_ref,
+        name: 'Number of deaths',
+        x: data.deaths.time,
+        y: data.deaths.values,
         line: { color: '#ff392d' },
       };
       const futureDeath2 = {
         type: 'scatter',
         mode: 'lines',
         name: 'Predicted number of deaths',
-        x: data.time_sim,
-        y: data.deaths_sim,
+        x: data.deaths.time,
+        y: data.deaths.predictions,
         line: { color: 'rgba(255,57,45,0.87)' },
       };
       const layoutDeath = {
         title: data.name,
-        xaxis: {
-          title: { text: 'Days' },
-        },
         yaxis: {
-          title: { text: 'Number of active cases' },
+          title: { text: 'Total number of deaths' },
         },
       };
       $('#plotly-future-deaths').empty();
