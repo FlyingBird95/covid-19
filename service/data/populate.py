@@ -4,9 +4,11 @@ from datetime import datetime
 import requests
 
 from service.data.models import Location, Deaths, Confirmed, Recovered, Totals
+from service.data.wrappers import with_retry
 
 DATA = 'https://covidapi.info/api/v1/country/{country_code}'
-COUNTRIES = 'https://raw.githubusercontent.com/backtrackbaba/covid-api/master/data/country_name_to_iso.json'
+COUNTRIES = 'https://raw.githubusercontent.com/backtrackbaba/covid-api/master/data/' \
+            'country_name_to_iso.json'
 DATE_FORMAT = '%Y-%m-%d'
 
 
@@ -37,7 +39,12 @@ def fetch_data():
 
     for location in Location.query.all():
         print(location.country)
-        data = requests.get(DATA.format(country_code=location.country_code)).json()
+        response = with_retry(lambda: requests.get(DATA.format(country_code=location.country_code)))
+        if response is None:
+            print('Deleting {}'.format(location.country))
+            location.delete()
+            continue
+        data = response.json()
 
         last_deaths, last_confirmed, last_recovered = 0, 0, 0
         for day, row in data['result'].items():

@@ -1,79 +1,99 @@
-from service.data.epidemic import calculate_epidemic
+from datetime import timedelta
 
+import numpy as np
 import scipy.optimize
-from scipy import interpolate
 
 
-def get_data(location):
-    """
-    Many thanks to https://github.com/RemiTheWarrior/epidemic-simulator for his mathematical model.
-    """
-    time, cases, deaths = [], [], []
-    for i, confirmed in enumerate(location.confirmations):
-        if confirmed.amount > 50:
-            time.append(confirmed.moment)
-            cases.append(location.get_people_sick(i))
-            deaths.append(location.deaths[i].amount)
-    time_number_days = []
-    for t in time:
-        time_number_days.append(abs(t - time[0]).days)
-    return time, time_number_days, cases, deaths
+def gaussian(x, amplitude, mean, stddev):
+    return amplitude * np.exp(-((x - mean) / 4 / stddev) ** 2)
 
 
-def fit_country(location):
-    """
-    Many thanks to https://github.com/RemiTheWarrior/epidemic-simulator for his mathematical model.
-    Don't ask me how it works.
-    """
+def delta(iterable):
+    return [iterable[i] - iterable[i - 1] for i in range(1, len(iterable))]
 
-    def cost_function(x):
-        (a, b, c, d, e, f) = x
-        v = a * 10 ** (-b)
-        K_r_0 = c * 10 ** (-d)
-        K_d_0 = e * 10 ** (-f)
-        time_sim, cases_sim, healthy_sim, recovered_sim, deaths_sim = calculate_epidemic(
-            C=0,
-            v=v,
-            x_n=x_n,
-            y_n=y_n,
-            t_final=max(time_number_days),
-            K_r_0=K_r_0, K_r_minus=0,
-            K_d_0=K_d_0,
-            K_d_plus=0,
+
+def avg(iterable, n=3):
+    n_half = n // 2
+    return [sum(iterable[i - n_half + j] for j in range(n)) / n
+            for i in range(n_half, len(iterable) - n_half)]
+
+
+class Predict(object):
+
+    def __init__(self, location, prediction_days=90):
+        self.location = location
+        self.prediction_days = prediction_days
+        self.time_sim = None
+        self.original_y = None
+        self.new_y = None
+        self.predictions = None
+
+    def datapoints(self):
+        """Must return an iterable with values."""
+        raise NotImplementedError('Implement yourself')
+
+    def condition(self, value):
+        """Must return a boolean."""
+        raise NotImplementedError('Implement yourself')
+
+    def get_value(self, i):
+        """Must return a number."""
+        raise NotImplementedError('Implement yourself')
+
+    def get_data(self):
+        """Returns a list of values since the moment the condition holds."""
+        time, values = [], []
+        for i, value in enumerate(self.datapoints()):
+            if self.condition(value):
+                time.append(value.moment)
+                values.append(self.get_value(i))
+
+        time_number_days = [abs(t - time[0]).days for t in time]
+        return time[0], time_number_days, values
+
+    def predict(self):
+        first_day, time_number_days, cases_ref = self.get_data()
+
+        new_x = time_number_days[1:-2]
+        self.original_y = delta(cases_ref)
+        self.new_y = avg(self.original_y)
+        self.original_y = self.original_y[1:-1]
+
+        (a, b, c), _ = scipy.optimize.curve_fit(
+            f=gaussian,
+            xdata=new_x,
+            ydata=self.new_y,
         )
-        interp_cases = interpolate.interp1d(time_sim, cases_sim, fill_value='extrapolate')
-        interp_deaths = interpolate.interp1d(time_sim, deaths_sim, fill_value='extrapolate')
-        fitness = 0
-        N = 0
+        self.time_sim = [first_day + timedelta(days=i) for i in range(self.prediction_days)]
+        self.predictions = list(gaussian(range(self.prediction_days), a, b, c))
 
-        for i in range(len(time_number_days)):
-            fitness += (abs(deaths_ref[i] - interp_deaths(time_number_days[i])) / (max(deaths_ref) + 1))
-            fitness += (abs(cases_ref[i] - interp_cases(time_number_days[i])) / (max(cases_ref) + 1))
-            N += 2
+    def to_json(self):
+        if self.time_sim is None:
+            self.predict()
+        return {
+            'time': [t.isoformat() for t in self.time_sim],
+            'values': self.original_y,
+            'predictions': self.predictions,
+        }
 
-        fitness /= N
-        return fitness
 
-    x_n = 1e5  # initial healthy population arbitrary
+class PredictConfirmations(Predict):
+    def datapoints(self):
+        return self.location.confirmations
 
-    time, time_number_days, cases_ref, deaths_ref = get_data(location)
-    y_n = cases_ref[0]
-    x0 = (2.78, 6.08, 25, 1.9, 1, 2)
-    res = scipy.optimize.minimize(cost_function, x0, method="Nelder-Mead")
-    x_opt = res.x
-    (a, b, c, d, e, f) = x_opt
-    v = a * 10 ** (-b)
-    K_r_0 = c * 10 ** (-d)
-    K_d_0 = e * 10 ** (-f)
-    time_sim, cases_sim, healthy_sim, recovered_sim, deaths_sim = calculate_epidemic(
-        C=0,
-        v=v,
-        x_n=x_n,
-        y_n=y_n,
-        t_final=90,
-        K_r_0=K_r_0,
-        K_r_minus=0,
-        K_d_0=K_d_0,
-        K_d_plus=0,
-    )
-    return time_sim, cases_sim, healthy_sim, recovered_sim, deaths_sim
+    def condition(self, value):
+        return value.amount > 50
+
+    def get_value(self, i):
+        return self.location.confirmations[i].amount
+
+
+class PredictDeaths(Predict):
+    def datapoints(self):
+        return self.location.deaths
+
+    def condition(self, value):
+        return value.amount > 20
+
+    def get_value(self, i):
+        return self.location.deaths[i].amount
