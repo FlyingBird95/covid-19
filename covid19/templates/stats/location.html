@@ -88,23 +88,32 @@
         <div class="row">
             <div class="col-12">
                 <p>Based on the data that we have collected, we can try to fit a mathematical model. With this model,
-                    we can actually predict the future. If you would like to know how you can construct this model,
-                    <a href="https://epidemic-simulator.now.sh/#/about">take a look at this page</a>. Don't ask me!
-                    These guys also earn the credits for the two graphs below.</p>
-                <p>As day 1 we take: {{ location.day1|strftime }}</p>
+                    we can actually predict the future.</p>
             </div>
         </div>
 
         <div class="row col-12 graph">
-            <div id="plotly-future-infected" style="width: 100%;"><div class="text-center"><img width="100"
+            <div id="plotly-future-infected" style="width: 100%;"><div class="text-center"><img width="60"
                     src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
-                    alt=""/><p>Please wait while, the graph is loaded...</p></div></div>
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
         </div>
 
         <div class="row col-12 graph">
-            <div id="plotly-future-deaths" style="width: 100%;"><div class="text-center"><img width="100"
+            <div id="plotly-future-infected-sum" style="width: 100%;"><div class="text-center"><img width="60"
                     src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
-                    alt=""/><p>Please wait while, the graph is loaded...</p></div></div>
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-future-deaths" style="width: 100%;"><div class="text-center"><img width="60"
+                    src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-future-deaths-sum" style="width: 100%;"><div class="text-center"><img width="60"
+                    src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
         </div>
     </div>
 {% endblock %}

@@ -6,6 +6,12 @@ function unpack(rows, key) {
   return rows.map((row) => row[key]);
 }
 
+function runningSum(values){
+  var new_array = [];
+  values.reduce(function(a,b,i) { return new_array[i] = a+b; },0);
+  return new_array;
+}
+
 function delta(rows) {
   const newRows = [];
   for (let i = 1; i < rows.length; i += 1) {
@@ -32,6 +38,33 @@ function movingAverage(trace) {
 
 function withMovingAvg(trace) {
   return [trace, movingAverage(trace)];
+}
+
+function predict(data, name, obj, div, title){
+  const real = {
+    type: 'scatter',
+    mode: 'markers',
+    name: `Real ${name}`,
+    x: obj.time,
+    y: obj.values,
+    line: { color: '#ff392d' },
+  };
+  const predictions = {
+    type: 'scatter',
+    mode: 'lines',
+    name: `Predicted ${name}`,
+    x: obj.time,
+    y: obj.predictions,
+    line: { color: 'rgba(255,57,45,0.87)' },
+  };
+  const layout = {
+    title: data.name,
+    yaxis: {
+      title: { text: title },
+    },
+  };
+  $(`#${div}`).empty();
+  Plotly.newPlot(div, [real, predictions], layout);
 }
 
 $(document).ready(() => {
@@ -106,55 +139,17 @@ $(document).ready(() => {
       Plotly.newPlot('plotly-confirmed-china', [compareLocation, compareChina], {title: 'Growth comparison with China'});
     });
     Plotly.d3.json(`${window.location.href}/json-future`, (err, data) => {
-      const futureInfected = {
-        type: 'scatter',
-        mode: 'markers',
-        name: 'Number of confirmations',
-        x: data.confirmation.time,
-        y: data.confirmation.values,
-        line: { color: '#ff392d' },
-      };
-      const futureInfected2 = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Predicted number of confirmations',
-        x: data.confirmation.time,
-        y: data.confirmation.predictions,
-        line: { color: 'rgba(255,57,45,0.87)' },
-      };
-      const layout = {
-        title: data.name,
-        yaxis: {
-          title: { text: 'Total number of confirmed cases' },
-        },
-      };
-      $('#plotly-future-infected').empty();
-      Plotly.newPlot('plotly-future-infected', [futureInfected, futureInfected2], layout);
 
-      const futureDeath = {
-        type: 'scatter',
-        mode: 'markers',
-        name: 'Number of deaths',
-        x: data.deaths.time,
-        y: data.deaths.values,
-        line: { color: '#ff392d' },
-      };
-      const futureDeath2 = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Predicted number of deaths',
-        x: data.deaths.time,
-        y: data.deaths.predictions,
-        line: { color: 'rgba(255,57,45,0.87)' },
-      };
-      const layoutDeath = {
-        title: data.name,
-        yaxis: {
-          title: { text: 'Total number of deaths' },
-        },
-      };
-      $('#plotly-future-deaths').empty();
-      Plotly.newPlot('plotly-future-deaths', [futureDeath, futureDeath2], layoutDeath);
+      predict(data, 'number of daily confirmations', data.confirmations, 'plotly-future-infected', 'Daily number of confirmed cases')
+      data.confirmations.values = runningSum(data.confirmations.values)
+      data.confirmations.predictions = runningSum(data.confirmations.predictions)
+      predict(data, 'cumulative confirmations', data.confirmations, 'plotly-future-infected-sum', 'Cumulative confirmed cases')
+
+      predict(data, 'number of deaths', data.deaths, 'plotly-future-deaths', 'Daily predicted number of deaths')
+      data.deaths.values = runningSum(data.deaths.values)
+      data.deaths.predictions = runningSum(data.deaths.predictions)
+      predict(data, 'cumulative deaths', data.deaths, 'plotly-future-deaths-sum', 'Cumulative deahts')
+
     });
     // eslint-disable-next-line func-names
   } else if (window.location.pathname.startsWith('/stats/')) {
