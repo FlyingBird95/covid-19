@@ -72,8 +72,8 @@ class Predict(object):
             self.predict()
         return {
             'time': [t.isoformat() for t in self.time_sim],
-            'values': self.original_y,
-            'predictions': self.predictions,
+            'values': [float(i) for i in self.original_y],
+            'predictions': [float(i) for i in self.predictions],
         }
 
 

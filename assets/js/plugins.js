@@ -40,6 +40,35 @@ function withMovingAvg(trace) {
   return [trace, movingAverage(trace)];
 }
 
+function plot(name, x, y, div){
+  const confirmed = {
+    type: 'scatter',
+    mode: 'lines',
+    name: name,
+    x: x,
+    y: y,
+    line: {color: '#021e20'},
+  };
+
+  Plotly.newPlot(div, [confirmed], {title: name});
+}
+
+function plotSimple(name, data, div){
+  plot(name, unpack(data, 'moment'), unpack(data, 'amount'), div)
+}
+
+function plotDelta(name, data, div){
+  const confirmedDelta = {
+    type: 'scatter',
+    mode: 'lines',
+    name: name,
+    x: unpack(data, 'moment').slice(1),
+    y: delta(unpack(data, 'amount')),
+    line: {color: '#021e20'},
+  };
+  Plotly.newPlot(div, withMovingAvg(confirmedDelta), {title: name});
+}
+
 function predict(data, name, obj, div, title){
   const real = {
     type: 'scatter',
@@ -78,49 +107,11 @@ $(document).ready(() => {
     });
 
     Plotly.d3.json(`${window.location.href}/json`, (err, data) => {
-      const confirmed = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Confirmed',
-        x: unpack(data.confirmed, 'moment'),
-        y: unpack(data.confirmed, 'amount'),
-        line: {color: '#021e20'},
-      };
+      plotSimple('Confirmed', data.confirmed, 'plotly-confirmed');
+      plotSimple('Recovered', data.recovered, 'plotly-recovered');
+      plotSimple('Deaths', data.deaths, 'plotly-deaths');
 
-      Plotly.newPlot('plotly-confirmed', [confirmed], {title: 'Confirmed'});
-
-      const recovered = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Recovered',
-        x: unpack(data.recovered, 'moment'),
-        y: unpack(data.recovered, 'amount'),
-        line: {color: '#021e20'},
-      };
-
-      Plotly.newPlot('plotly-recovered', [recovered], {title: 'Recovered'});
-
-      const deaths = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Deaths',
-        x: unpack(data.deaths, 'moment'),
-        y: unpack(data.deaths, 'amount'),
-        line: {color: '#021e20'},
-      };
-
-      Plotly.newPlot('plotly-deaths', [deaths], {title: 'Deaths'});
-
-      const confirmedDelta = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Confirmations per day',
-        x: unpack(data.confirmed, 'moment').slice(1),
-        y: delta(unpack(data.confirmed, 'amount')),
-        line: {color: '#021e20'},
-      };
-
-      Plotly.newPlot('plotly-confirmed-delta', withMovingAvg(confirmedDelta), {title: 'Confirmations per day'});
+      plotDelta('Confirmations per day', data.confirmed, 'plotly-confirmed-delta')
 
       const compareChina = {
         type: 'scatter',
@@ -149,9 +140,29 @@ $(document).ready(() => {
       data.deaths.values = runningSum(data.deaths.values)
       data.deaths.predictions = runningSum(data.deaths.predictions)
       predict(data, 'cumulative deaths', data.deaths, 'plotly-future-deaths-sum', 'Cumulative deahts')
-
     });
     // eslint-disable-next-line func-names
+  } else if (window.location.pathname.startsWith('/stats/world')) {
+    Plotly.d3.json(`${window.location.href}/json`, (err, data) => {
+      plotSimple('Confirmed', data.confirmed, 'plotly-confirmed');
+      plotSimple('Recovered', data.recovered, 'plotly-recovered');
+      plotSimple('Deaths', data.deaths, 'plotly-deaths');
+
+      plotDelta('Confirmations per day', data.confirmed, 'plotly-confirmed-delta')
+    });
+    Plotly.d3.json(`${window.location.href}/json-future`, (err, data) => {
+
+      predict(data, 'number of daily confirmations', data.confirmations, 'plotly-future-infected', 'Daily number of confirmed cases')
+      data.confirmations.values = runningSum(data.confirmations.values)
+      data.confirmations.predictions = runningSum(data.confirmations.predictions)
+      predict(data, 'cumulative confirmations', data.confirmations, 'plotly-future-infected-sum', 'Cumulative confirmed cases')
+
+      predict(data, 'number of deaths', data.deaths, 'plotly-future-deaths', 'Daily predicted number of deaths')
+      data.deaths.values = runningSum(data.deaths.values)
+      data.deaths.predictions = runningSum(data.deaths.predictions)
+      predict(data, 'cumulative deaths', data.deaths, 'plotly-future-deaths-sum', 'Cumulative deahts')
+    });
+
   } else if (window.location.pathname.startsWith('/stats/')) {
     const table = $('#table');
     table.DataTable({

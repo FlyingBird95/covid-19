@@ -7,6 +7,7 @@ from covid19.extensions import cache
 from covid19.stats.wrappers import with_location, with_china
 from service.data.models import Location
 from service.data.predict import PredictConfirmations, PredictDeaths
+from service.data.world import World
 
 blueprint = Blueprint("stats", __name__, url_prefix="/stats", static_folder="../static")
 
@@ -67,6 +68,36 @@ def details_json_future(location):
 
     return jsonify({
         'name': location.country,
+        'confirmations': confirmations.to_json(),
+        'deaths': deaths.to_json(),
+    })
+
+
+@blueprint.route("/world")
+def world():
+    """Return the world page."""
+    return render_template("stats/world.html")
+
+
+@blueprint.route("/world/json")
+def world_json():
+    """Return the world JSON data."""
+    world = World()
+    return jsonify({
+        'confirmed': [obj.serialize() for obj in world.confirmations],
+        'deaths': [obj.serialize() for obj in world.deaths],
+        'recovered': [obj.serialize() for obj in world.recovered],
+    })
+
+
+@blueprint.route("/world/json-future")
+def world_json_future():
+    """Return the world JSON data to predict the future."""
+    world = World()
+    confirmations = PredictConfirmations(location=world, prediction_days=150)
+    deaths = PredictDeaths(location=world, prediction_days=150)
+
+    return jsonify({
         'confirmations': confirmations.to_json(),
         'deaths': deaths.to_json(),
     })

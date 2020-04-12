@@ -64,11 +64,15 @@ class Location(SurrogatePK, Model):
         return cls.query.filter(Location.country == country).count() >= 1
 
 
-class StatsFuncsMixin(object):
+class TimestampSerializable(object):
+    def serialize(self):
+        return {
+            'moment': self.moment.isoformat(),
+            'amount': int(self.amount),
+        }
 
-    @classmethod
-    def get_latest(cls, location=None):
-        return cls.query.filter_by(location=location).order_by(desc(Confirmed.moment)).one()
+
+class StatsFuncsMixin(object):
 
     @classmethod
     def get_for(cls, location_id, moment):
@@ -82,18 +86,8 @@ class StatsFuncsMixin(object):
             cls.moment == obj.moment,
         ).count() >= 1
 
-    @classmethod
-    def get_total(cls, locations):
-        return sum([db.session.query(func.max(cls.amount)).filter_by(location_id=loc.id).scalar() for loc in locations])
 
-    def serialize(self):
-        return {
-            'moment': self.moment.isoformat(),
-            'amount': self.amount,
-        }
-
-
-class Confirmed(SurrogatePK, StatsFuncsMixin, Model):
+class Confirmed(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
     """Total number of confirmed cases at a certain moment in a location."""
 
     __tablename__ = 'confirmations'
@@ -106,7 +100,7 @@ class Confirmed(SurrogatePK, StatsFuncsMixin, Model):
     amount = Column(db.Integer, default=0, nullable=False)
 
 
-class Deaths(SurrogatePK, StatsFuncsMixin, Model):
+class Deaths(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
     """Total number of deaths at a certain moment in a location."""
 
     __tablename__ = 'deaths'
@@ -119,7 +113,7 @@ class Deaths(SurrogatePK, StatsFuncsMixin, Model):
     amount = Column(db.Integer, default=0, nullable=False)
 
 
-class Recovered(SurrogatePK, StatsFuncsMixin, Model):
+class Recovered(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
     """Total number of recoveries at a certain moment in a location."""
 
     __tablename__ = 'recoveries'

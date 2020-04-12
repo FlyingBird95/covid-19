@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row col-12">
+            <h1 class="md-5">World wide</h1>
+        </div>
+
+        <div class="row col-12">
+            <h2 class="title-clear">Simple statistics</h2>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p>Let's have a look at simple statistics, such as:</p>
+                <ul>
+                    <li>The total amount of infected persons due to the Corona virus.</li>
+                    <li>The total amount of recovered persons due to the Corona virus.</li>
+                    <li>The total amount of people passed away due to the Corona virus.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-confirmed" style="width: 100%;"></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-recovered" style="width: 100%;"></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-deaths" style="width: 100%;"></div>
+        </div>
+
+        <div class="row col-12">
+            <h2 class="title-clear">More interesting graphs</h2>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p>The previous graphs are not very interesting. Let's have a look at the amount of infected people
+                    per day.</p>
+            </div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-confirmed-delta" style="width: 100%;"></div>
+        </div>
+
+        <div class="row col-12">
+            <h2 class="title-clear">Let's predict the future!</h2>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <p>Based on the data that we have collected, we can try to fit a mathematical model. With this model,
+                    we can actually predict the future.</p>
+            </div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-future-infected" style="width: 100%;"><div class="text-center"><img width="60"
+                    src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-future-infected-sum" style="width: 100%;"><div class="text-center"><img width="60"
+                    src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-future-deaths" style="width: 100%;"><div class="text-center"><img width="60"
+                    src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
+        </div>
+
+        <div class="row col-12 graph">
+            <div id="plotly-future-deaths-sum" style="width: 100%;"><div class="text-center"><img width="60"
+                    src="{{ static_url_for('static', filename='build/img/loading.gif') }}"
+                    alt=""/><p>Please wait while the graph is loaded...</p></div></div>
+        </div>
+    </div>
+{% endblock %}
