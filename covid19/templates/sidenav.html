@@ -1,3 +1,9 @@
+{% macro menu_item(endpoint, fa_icon, name) -%}
+  <li class="{{ 'active' if request.endpoint == endpoint }}">
+    <a href="{{ url_for(endpoint) }}"><span class="fa {{fa_icon}} mr-3"></span> {{ name }}</a>
+  </li>
+{%- endmacro %}
+
 <nav id="sidebar">
     <div class="custom-menu">
         <button type="button" id="sidebarCollapse" class="btn btn-primary">
@@ -7,19 +13,12 @@
     </div>
     <div class="p-4">
         <ul class="list-unstyled components mb-5">
-            <li class="{{ 'active' if request.endpoint == 'public.home' }}">
-                <a href="{{ url_for('public.home') }}"><span class="fa fa-home mr-3"></span> Home</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'stats.world' }}">
-                <a href="{{ url_for('stats.world') }}"><span class="fa fa-globe mr-3"></span> World</a>
-            </li>
-            <li class="{{ 'active' if request.endpoint == 'stats.overview' }}">
-                <a href="{{ url_for('stats.overview') }}"><span class="fa fa-table mr-3"></span> Stats per country</a>
-            </li>
+            {{ menu_item('public.home', 'fa-home', 'Home') }}
+            {{ menu_item('stats.world', 'fa-globe', 'World') }}
+            {{ menu_item('stats.overview', 'fa-table', 'Stats per country') }}
+
             {% if current_user.is_authenticated %}
-                <li>
-                    <a href="{{ url_for('public.logout') }}"><span class="fa fa-user mr-3"></span> Logout</a>
-                </li>
+                {{ menu_item('public.logout', 'fa-user', 'Logout') }}
             {% endif %}
         </ul>
     </div>

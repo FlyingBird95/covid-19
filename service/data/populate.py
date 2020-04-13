@@ -38,21 +38,25 @@ def fetch_data():
     deaths, confirmed, recovered = 0, 0, 0
 
     for location in Location.query.all():
-        print(location.country)
-        response = with_retry(lambda: requests.get(DATA.format(country_code=location.country_code)))
-        if response is None:
-            print('Deleting {}'.format(location.country))
-            location.delete()
+        try:
+            print('{}: {}'.format(datetime.now(), location.country))
+            response = with_retry(
+                lambda: requests.get(DATA.format(country_code=location.country_code))
+            )
+            if response is None:
+                print('Deleting {}'.format(location.country))
+                location.delete()
+                continue
+            data = response.json()
+
+            last_deaths, last_confirmed, last_recovered = 0, 0, 0
+            for day, row in data['result'].items():
+                day = get_datetime(day)
+                last_recovered = save_row(Recovered, location, day, get_value(row, 'recovered', last_recovered))
+                last_confirmed = save_row(Confirmed, location, day, get_value(row, 'confirmed', last_confirmed))
+                last_deaths = save_row(Deaths, location, day, get_value(row, 'deaths', last_deaths))
+        except Exception:
             continue
-        data = response.json()
-
-        last_deaths, last_confirmed, last_recovered = 0, 0, 0
-        for day, row in data['result'].items():
-            day = get_datetime(day)
-            last_recovered = save_row(Recovered, location, day, get_value(row, 'recovered', last_recovered))
-            last_confirmed = save_row(Confirmed, location, day, get_value(row, 'confirmed', last_confirmed))
-            last_deaths = save_row(Deaths, location, day, get_value(row, 'deaths', last_deaths))
-
         confirmed += last_confirmed
         deaths += last_deaths
         recovered += last_recovered

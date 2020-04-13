@@ -59,11 +59,14 @@ class Predict(object):
         self.new_y = avg(self.original_y)
         self.original_y = self.original_y[1:-1]
 
-        (a, b, c), _ = scipy.optimize.curve_fit(
-            f=gaussian,
-            xdata=new_x,
-            ydata=self.new_y,
-        )
+        try:
+            (a, b, c), _ = scipy.optimize.curve_fit(
+                f=gaussian,
+                xdata=new_x,
+                ydata=self.new_y,
+            )
+        except RuntimeError:
+            a, b, c = np.float64(1), np.float64(0), np.float(1)
         self.time_sim = [first_day + timedelta(days=i) for i in range(self.prediction_days)]
         self.predictions = list(gaussian(range(self.prediction_days), a, b, c))
 
