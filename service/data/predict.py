@@ -65,7 +65,7 @@ class Predict(object):
                 xdata=new_x,
                 ydata=self.new_y,
             )
-        except RuntimeError:
+        except (RuntimeError, ValueError):
             a, b, c = np.float64(1), np.float64(0), np.float(1)
         self.time_sim = [first_day + timedelta(days=i) for i in range(self.prediction_days)]
         self.predictions = list(gaussian(range(self.prediction_days), a, b, c))
