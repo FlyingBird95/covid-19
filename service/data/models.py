@@ -1,4 +1,4 @@
-from sqlalchemy import desc, UniqueConstraint, func
+from sqlalchemy import desc, UniqueConstraint
 
 from covid19.database import SurrogatePK, Model, Column, db, relationship
 
@@ -63,8 +63,14 @@ class Location(SurrogatePK, Model):
     def exists(cls, country):
         return cls.query.filter(Location.country == country).count() >= 1
 
+    def remove_data_points(self):
+        """Removes all data points in Recovered, Confirmed and Deaths that belong to this location."""
+        Recovered.query.filter_by(location=self).delete()
+        Confirmed.query.filter_by(location=self).delete()
+        Deaths.query.filter_by(location=self).delete()
 
-class TimestampSerializable(object):
+
+class TimestampSerializableMixin(object):
     def serialize(self):
         return {
             'moment': self.moment.isoformat(),
@@ -87,7 +93,7 @@ class StatsFuncsMixin(object):
         ).count() >= 1
 
 
-class Confirmed(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
+class Confirmed(SurrogatePK, StatsFuncsMixin, TimestampSerializableMixin, Model):
     """Total number of confirmed cases at a certain moment in a location."""
 
     __tablename__ = 'confirmations'
@@ -100,7 +106,7 @@ class Confirmed(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
     amount = Column(db.Integer, default=0, nullable=False)
 
 
-class Deaths(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
+class Deaths(SurrogatePK, StatsFuncsMixin, TimestampSerializableMixin, Model):
     """Total number of deaths at a certain moment in a location."""
 
     __tablename__ = 'deaths'
@@ -113,7 +119,7 @@ class Deaths(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
     amount = Column(db.Integer, default=0, nullable=False)
 
 
-class Recovered(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
+class Recovered(SurrogatePK, StatsFuncsMixin, TimestampSerializableMixin, Model):
     """Total number of recoveries at a certain moment in a location."""
 
     __tablename__ = 'recoveries'
@@ -124,23 +130,3 @@ class Recovered(SurrogatePK, StatsFuncsMixin, TimestampSerializable, Model):
 
     moment = Column(db.DateTime, nullable=False)
     amount = Column(db.Integer, default=0, nullable=False)
-
-
-class Totals(SurrogatePK, Model):
-    """Store the totals for faster retrieving."""
-    CONFIRMED = 'confirmed'
-    DEATHS = 'deaths'
-    RECOVERED = 'recovered'
-    UPDATED = 'updated'
-
-    __tablename__ = 'totals'
-
-    key = Column(db.String(80), unique=True, nullable=False)
-    value = Column(db.String(80), nullable=False)
-
-    @classmethod
-    def get_or_create(cls, key):
-        instance = cls.query.filter_by(key=key).one_or_none()
-        if not instance:
-            instance = cls(key=key)
-        return instance

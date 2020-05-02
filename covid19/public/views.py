@@ -9,7 +9,7 @@ from covid19.extensions import login_manager, cache
 from covid19.public.forms import LoginForm
 from covid19.user.models import User
 from covid19.utils import flash_errors
-from service.data.models import Totals
+from service.data.world import World
 
 blueprint = Blueprint("public", __name__, static_folder="../static")
 
@@ -24,16 +24,13 @@ def load_user(user_id):
 @cache.cached(timeout=50)
 def home():
     """Home page."""
-    deaths = int(Totals.get_or_create(Totals.DEATHS).value or 0)
-    confirmed = int(Totals.get_or_create(Totals.CONFIRMED).value or 0)
-    recovered = int(Totals.get_or_create(Totals.RECOVERED).value or 0)
-    updated = datetime.fromisoformat(Totals.get_or_create(Totals.UPDATED).value or datetime.now().isoformat())
+    world = World()
     return render_template(
         "public/home.html",
-        deaths=deaths,
-        confirmed=confirmed,
-        recovered=recovered,
-        updated=updated,
+        deaths=world.last_deaths,
+        confirmed=world.last_confirmed,
+        recovered=world.last_recovered,
+        updated=world.last_updated,
     )
 
 

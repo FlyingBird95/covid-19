@@ -3,7 +3,7 @@ from datetime import datetime
 
 import requests
 
-from service.data.models import Location, Deaths, Confirmed, Recovered, Totals
+from service.data.models import Location, Deaths, Confirmed, Recovered
 from service.data.wrappers import with_retry
 
 DATA = 'https://covidapi.info/api/v1/country/{country_code}'
@@ -12,20 +12,17 @@ COUNTRIES = 'https://raw.githubusercontent.com/backtrackbaba/covid-api/master/da
 DATE_FORMAT = '%Y-%m-%d'
 
 
-def get_datetime(date_string):
-    """Returns a Datetime object."""
-    return datetime.strptime(date_string, DATE_FORMAT)
-
-
 def get_value(obj, key, default=0):
-    if key in obj and obj[key] is not None:
-        return max(obj[key], default)
-    return default
+    return obj[key] if key in obj and obj[key] is not None else default
 
 
 def fetch_countries():
     """Get the countries from an external location and save into the database."""
     countries = requests.get(COUNTRIES).json()
+    Recovered.query.delete()
+    Confirmed.query.delete()
+    Deaths.query.delete()
+    Location.query.delete()  # delete all existing data
 
     for country, country_code in countries.items():
         if not Location.exists(country=country):
@@ -33,55 +30,35 @@ def fetch_countries():
     logging.info('Done')
 
 
+def get_country_data(location):
+    """Returns none if the data cannot be retrieved."""
+    print('{}: {}'.format(datetime.now(), location.country))
+    response = with_retry(
+        lambda: requests.get(DATA.format(country_code=location.country_code))
+    )
+    if response is None:
+        print('Deleting {}'.format(location.country))
+        location.remove_data_points()
+        location.delete()
+        return None
+    return response.json()
+
+
 def fetch_data():
     """Get the data from an external location and save into the database."""
-    deaths, confirmed, recovered = 0, 0, 0
-
     for location in Location.query.all():
         try:
-            print('{}: {}'.format(datetime.now(), location.country))
-            response = with_retry(
-                lambda: requests.get(DATA.format(country_code=location.country_code))
-            )
-            if response is None:
-                print('Deleting {}'.format(location.country))
-                location.delete()
+            data = get_country_data(location=location)
+            if data is None:
                 continue
-            data = response.json()
 
-            last_deaths, last_confirmed, last_recovered = 0, 0, 0
-            for day, row in data['result'].items():
-                day = get_datetime(day)
-                last_recovered = save_row(Recovered, location, day, get_value(row, 'recovered', last_recovered))
-                last_confirmed = save_row(Confirmed, location, day, get_value(row, 'confirmed', last_confirmed))
-                last_deaths = save_row(Deaths, location, day, get_value(row, 'deaths', last_deaths))
-        except Exception:
+            location.remove_data_points()
+
+            for day_string, row in data['result'].items():
+                moment = datetime.strptime(day_string, DATE_FORMAT)
+                Recovered(location=location, moment=moment, amount=get_value(row, 'recovered')).save()
+                Confirmed(location=location, moment=moment, amount=get_value(row, 'confirmed')).save()
+                Deaths(location=location, moment=moment, amount=get_value(row, 'deaths')).save()
+        except Exception as e:
+            print(e)
             continue
-        confirmed += last_confirmed
-        deaths += last_deaths
-        recovered += last_recovered
-
-    set_value(Totals.CONFIRMED, confirmed)
-    set_value(Totals.DEATHS, deaths)
-    set_value(Totals.RECOVERED, recovered)
-    set_value(Totals.UPDATED, datetime.utcnow().isoformat())
-
-
-def set_value(key, value):
-    obj = Totals.get_or_create(key)
-    obj.value = value
-    obj.save()
-
-
-def save_row(cls, location, day, value):
-    obj = cls(
-        location_id=location.id,
-        moment=day,
-        amount=value,
-    )
-    if not cls.exists(obj):
-        obj.save()
-    else:
-        obj = cls.get_for(location_id=location.id, moment=day)
-        obj.update(amount=value)
-    return value
