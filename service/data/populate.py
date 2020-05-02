@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 
 import requests
@@ -27,7 +26,7 @@ def fetch_countries():
     for country, country_code in countries.items():
         if not Location.exists(country=country):
             Location(country=country, country_code=country_code).save()
-    logging.info('Done')
+    print('Done')
 
 
 def get_country_data(location):
